@@ -1,0 +1,27 @@
+services:
+  mysql:
+    image: mysql:latest
+    container_name: my-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: kea
+      MYSQL_DATABASE: kea
+      MYSQL_USER: kea
+      MYSQL_PASSWORD: kea
+    ports:
+      - "127.0.0.1:3307:3306"
+    volumes:
+        - mysql_data:/var/lib/mysql
+  backend:
+    build: .
+    depends_on:
+      - mysql
+    ports:
+      - "127.0.0.1:8080:8080"
+    volumes:
+      - "./application-docker.properties:/app/application.properties:ro"
+    environment:
+      SPRING_CONFIG_LOCATION: file:/app/application.properties
+
+volumes:
+    mysql_data:

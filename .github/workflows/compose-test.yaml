@@ -1,0 +1,37 @@
+name: Compose Integration Test
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+  workflow_dispatch:
+
+jobs:
+  compose-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # (Valgfrit) Forbuild backend-image så compose kan genbruge lag
+      - name: Pre-build backend image
+        run: docker build -t testmeddocker-backend:ci .
+
+      - name: Compose up
+        run: |
+          docker compose up -d
+          # MySQL kan være langsom at starte; giv den lidt tid
+          sleep 45
+
+      - name: Health-check
+        run: curl -f http://localhost:8080/healthz
+
+      - name: Compose status (on failure)
+        if: failure()
+        run: |
+          docker compose ps
+          docker compose logs
+
+      - name: Compose down
+        if: always()
+        run: docker compose down

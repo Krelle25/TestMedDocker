@@ -1,0 +1,26 @@
+name: Java CI with Docker
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - run: docker build -t testmeddocker:test .
+    - run: |
+        # Start container i baggrunden
+        docker run -d --name test-container -p 8080:8080 testmeddocker:test
+        
+        # Vent på at applikationen starter
+        sleep 30
+        
+        # Test at applikationen svarer (EKSEMPEL)
+        curl -f http://localhost:8080/healthz || exit 1
+        
+        # Ryd op
+        docker stop test-container
+        docker rm test-container

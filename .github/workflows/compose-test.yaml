@@ -21,7 +21,7 @@ jobs:
         run: |
           docker compose up -d
           # MySQL kan være langsom at starte; giv den lidt tid
-          sleep 45
+          sleep 90
 
       - name: Health-check
         run: curl -f http://localhost:8080/healthz
